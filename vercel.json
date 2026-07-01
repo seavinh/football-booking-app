@@ -1,5 +1,5 @@
 {
-  "outputDirectory": "football_booking_app/build/web",
+  "outputDirectory": "public",
   "framework": null,
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
