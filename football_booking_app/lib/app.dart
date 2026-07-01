@@ -1,0 +1,70 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'core/theme/app_theme.dart';
+import 'features/auth/login_screen.dart';
+import 'features/auth/register_screen.dart';
+import 'features/home/home_screen.dart';
+import 'features/home/field_details_screen.dart';
+import 'features/booking/booking_screen.dart';
+import 'features/profile/my_bookings_screen.dart';
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Football Booking',
+      theme: AppTheme.lightTheme,
+      routerConfig: _router,
+      debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+final GoRouter _router = GoRouter(
+  initialLocation: '/',
+  redirect: (context, state) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+
+    if (session == null && !isAuthRoute) {
+      return '/login';
+    }
+    if (session != null && isAuthRoute) {
+      return '/';
+    }
+    return null;
+  },
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const LoginScreen(),
+    ),
+    GoRoute(
+      path: '/register',
+      builder: (context, state) => const RegisterScreen(),
+    ),
+    GoRoute(
+      path: '/field/:id',
+      builder: (context, state) => FieldDetailsScreen(
+        fieldId: state.pathParameters['id']!,
+      ),
+    ),
+    GoRoute(
+      path: '/booking/:fieldId',
+      builder: (context, state) => BookingScreen(
+        fieldId: state.pathParameters['fieldId']!,
+      ),
+    ),
+    GoRoute(
+      path: '/my-bookings',
+      builder: (context, state) => const MyBookingsScreen(),
+    ),
+  ],
+);
