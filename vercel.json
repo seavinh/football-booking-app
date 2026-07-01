@@ -1,5 +1,7 @@
 {
-  "buildCommand": "cd football_booking_app && flutter build web",
-  "outputDirectory": "football_booking_app/build/web",
-  "framework": "flutter"
+  "outputDirectory": "public",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
