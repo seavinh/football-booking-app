@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _supabaseService = SupabaseService();
   bool _isLoading = false;
   String? _error;
+  String _selectedRole = 'user';
 
   @override
   void dispose() {
@@ -38,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _supabaseService.signUp(
         _emailController.text.trim(),
         _passwordController.text,
+        role: _selectedRole,
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -127,6 +129,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         return 'Passwords do not match';
                       }
                       return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    initialValue: _selectedRole,
+                    decoration: const InputDecoration(
+                      labelText: 'Register as',
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'user',
+                        child: Text('User - Book football fields'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'admin',
+                        child: Text('Admin - Manage fields & bookings'),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedRole = value!;
+                      });
                     },
                   ),
                   const SizedBox(height: 8),

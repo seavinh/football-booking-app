@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../models/booking.dart';
 import '../../models/football_field.dart';
+import '../../models/time_slot.dart';
 import '../../services/supabase_service.dart';
 
 class BookingScreen extends StatefulWidget {
@@ -19,18 +20,12 @@ class _BookingScreenState extends State<BookingScreen> {
   final SupabaseService _supabaseService = SupabaseService();
   FootballField? _field;
   DateTime _selectedDate = DateTime.now();
-  String? _selectedStartTime;
-  String? _selectedEndTime;
+  TimeSlot? _selectedSlot;
+  List<TimeSlot> _availableSlots = [];
   List<Map<String, dynamic>> _bookedSlots = [];
   bool _isLoading = true;
   bool _isSubmitting = false;
   String? _error;
-
-  final List<String> _timeSlots = [
-    '08:00', '09:00', '10:00', '11:00', '12:00',
-    '13:00', '14:00', '15:00', '16:00', '17:00',
-    '18:00', '19:00', '20:00', '21:00',
-  ];
 
   @override
   void initState() {
@@ -45,7 +40,7 @@ class _BookingScreenState extends State<BookingScreen> {
         _field = field;
         _isLoading = false;
       });
-      _loadBookedSlots();
+      _loadTimeSlots();
     } catch (e) {
       setState(() {
         _error = e.toString();
@@ -54,24 +49,25 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  Future<void> _loadBookedSlots() async {
+  Future<void> _loadTimeSlots() async {
     try {
-      final slots = await _supabaseService.getBookedSlots(widget.fieldId, _selectedDate);
+      final slots = await _supabaseService.getAvailableTimeSlots(widget.fieldId);
+      final booked = await _supabaseService.getBookedSlots(widget.fieldId, _selectedDate);
       setState(() {
-        _bookedSlots = slots;
+        _availableSlots = slots;
+        _bookedSlots = booked;
       });
     } catch (e) {
       // Handle error silently
     }
   }
 
-  bool _isSlotBooked(String time) {
-    final endTime = '${int.parse(time.split(':')[0]) + 1}:00';
-    return _bookedSlots.any((slot) {
-      final slotStart = slot['start_time'];
-      final slotEnd = slot['end_time'];
-      return (time.compareTo(slotStart) < 0 && endTime.compareTo(slotStart) > 0) ||
-          (time.compareTo(slotEnd) < 0 && endTime.compareTo(slotEnd) > 0);
+  bool _isSlotBooked(TimeSlot slot) {
+    return _bookedSlots.any((booked) {
+      final slotStart = booked['start_time'];
+      final slotEnd = booked['end_time'];
+      return (slot.startTime.compareTo(slotStart) < 0 && slot.endTime.compareTo(slotStart) > 0) ||
+          (slot.startTime.compareTo(slotEnd) < 0 && slot.endTime.compareTo(slotEnd) > 0);
     });
   }
 
@@ -85,17 +81,16 @@ class _BookingScreenState extends State<BookingScreen> {
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        _selectedStartTime = null;
-        _selectedEndTime = null;
+        _selectedSlot = null;
       });
-      _loadBookedSlots();
+      _loadTimeSlots();
     }
   }
 
   Future<void> _submitBooking() async {
-    if (_selectedStartTime == null || _selectedEndTime == null) {
+    if (_selectedSlot == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select start and end time')),
+        const SnackBar(content: Text('Please select a time slot')),
       );
       return;
     }
@@ -110,8 +105,8 @@ class _BookingScreenState extends State<BookingScreen> {
         userId: Supabase.instance.client.auth.currentUser!.id,
         fieldId: widget.fieldId,
         bookingDate: _selectedDate,
-        startTime: _selectedStartTime!,
-        endTime: _selectedEndTime!,
+        startTime: _selectedSlot!.startTime,
+        endTime: _selectedSlot!.endTime,
         status: 'pending',
         createdAt: DateTime.now(),
       );
@@ -182,6 +177,11 @@ class _BookingScreenState extends State<BookingScreen> {
                                         _field!.name,
                                         style: Theme.of(context).textTheme.titleLarge,
                                       ),
+                                      if (_field!.address != null)
+                                        Text(
+                                          _field!.address!,
+                                          style: Theme.of(context).textTheme.bodyMedium,
+                                        ),
                                       if (_field!.pricePerHour != null)
                                         Text(
                                           '\$${_field!.pricePerHour!.toStringAsFixed(2)} / hour',
@@ -216,39 +216,68 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Select Start Time',
+                        'Select Time Slot',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: _timeSlots.map((time) {
-                          final isBooked = _isSlotBooked(time);
-                          final isSelected = _selectedStartTime == time;
-                          return ChoiceChip(
-                            label: Text(time),
-                            selected: isSelected,
-                            onSelected: isBooked
-                                ? null
-                                : (selected) {
-                                    setState(() {
-                                      _selectedStartTime = time;
-                                      _selectedEndTime = '${int.parse(time.split(':')[0]) + 1}:00';
-                                    });
-                                  },
-                            backgroundColor: isBooked ? Colors.grey[300] : null,
-                          );
-                        }).toList(),
-                      ),
+                      if (_availableSlots.isEmpty)
+                        const Card(
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(
+                              child: Text('No time slots available for this field'),
+                            ),
+                          ),
+                        )
+                      else
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _availableSlots.map((slot) {
+                            final isBooked = _isSlotBooked(slot);
+                            final isSelected = _selectedSlot?.id == slot.id;
+                            return ChoiceChip(
+                              label: Text('${slot.startTime} - ${slot.endTime}'),
+                              selected: isSelected,
+                              onSelected: isBooked
+                                  ? null
+                                  : (selected) {
+                                      setState(() {
+                                        _selectedSlot = slot;
+                                      });
+                                    },
+                              backgroundColor: isBooked ? Colors.grey[300] : null,
+                            );
+                          }).toList(),
+                        ),
                       const SizedBox(height: 24),
-                      if (_selectedStartTime != null) ...[
-                        Text(
-                          'Selected: $_selectedStartTime - $_selectedEndTime',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
+                      if (_selectedSlot != null) ...[
+                        Card(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Booking Summary',
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text('Field: ${_field?.name}'),
+                                Text('Date: ${DateFormat('yyyy-MM-dd').format(_selectedDate)}'),
+                                Text('Time: ${_selectedSlot!.startTime} - ${_selectedSlot!.endTime}'),
+                                if (_field?.pricePerHour != null)
+                                  Text(
+                                    'Price: \$${_field!.pricePerHour!.toStringAsFixed(2)}',
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),

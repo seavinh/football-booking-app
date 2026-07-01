@@ -8,6 +8,11 @@ import 'features/home/home_screen.dart';
 import 'features/home/field_details_screen.dart';
 import 'features/booking/booking_screen.dart';
 import 'features/profile/my_bookings_screen.dart';
+import 'features/admin/admin_screen.dart';
+import 'features/admin/admin_fields_screen.dart';
+import 'features/admin/admin_bookings_screen.dart';
+import 'features/admin/admin_timeslots_screen.dart';
+import 'services/supabase_service.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,9 +30,10 @@ class MyApp extends StatelessWidget {
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
-  redirect: (context, state) {
+  redirect: (context, state) async {
     final session = Supabase.instance.client.auth.currentSession;
     final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register';
+    final isAdminRoute = state.matchedLocation.startsWith('/admin');
 
     if (session == null && !isAuthRoute) {
       return '/login';
@@ -35,6 +41,19 @@ final GoRouter _router = GoRouter(
     if (session != null && isAuthRoute) {
       return '/';
     }
+
+    // Check role for admin routes
+    if (isAdminRoute) {
+      try {
+        final profile = await SupabaseService().getProfile();
+        if (!profile.isAdmin) {
+          return '/';
+        }
+      } catch (e) {
+        return '/';
+      }
+    }
+
     return null;
   },
   routes: [
@@ -65,6 +84,22 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/my-bookings',
       builder: (context, state) => const MyBookingsScreen(),
+    ),
+    GoRoute(
+      path: '/admin',
+      builder: (context, state) => const AdminScreen(),
+    ),
+    GoRoute(
+      path: '/admin/fields',
+      builder: (context, state) => const AdminFieldsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/bookings',
+      builder: (context, state) => const AdminBookingsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/time-slots',
+      builder: (context, state) => const AdminTimeSlotsScreen(),
     ),
   ],
 );
