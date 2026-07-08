@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../models/football_field.dart';
 import '../../services/supabase_service.dart';
 
@@ -29,6 +30,25 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
     });
   }
 
+  Widget _buildFieldDialogTextField({
+    required TextEditingController controller,
+    required String labelText,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: TextField(
+        controller: controller,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: labelText,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+      ),
+    );
+  }
+
   void _showAddFieldDialog() {
     final nameController = TextEditingController();
     final addressController = TextEditingController();
@@ -37,21 +57,19 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add Football Field'),
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text(
+          'Add Football Field',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: addressController,
-              decoration: const InputDecoration(labelText: 'Address'),
-            ),
-            TextField(
+            _buildFieldDialogTextField(controller: nameController, labelText: 'Name'),
+            _buildFieldDialogTextField(controller: addressController, labelText: 'Address'),
+            _buildFieldDialogTextField(
               controller: priceController,
-              decoration: const InputDecoration(labelText: 'Price per hour'),
+              labelText: 'Price per hour (\$)',
               keyboardType: TextInputType.number,
             ),
           ],
@@ -75,7 +93,7 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
                 }
               }
             },
-            child: const Text('Add'),
+            child: const Text('Add Field'),
           ),
         ],
       ),
@@ -92,21 +110,19 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Football Field'),
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text(
+          'Edit Football Field',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name'),
-            ),
-            TextField(
-              controller: addressController,
-              decoration: const InputDecoration(labelText: 'Address'),
-            ),
-            TextField(
+            _buildFieldDialogTextField(controller: nameController, labelText: 'Name'),
+            _buildFieldDialogTextField(controller: addressController, labelText: 'Address'),
+            _buildFieldDialogTextField(
               controller: priceController,
-              decoration: const InputDecoration(labelText: 'Price per hour'),
+              labelText: 'Price per hour (\$)',
               keyboardType: TextInputType.number,
             ),
           ],
@@ -128,7 +144,7 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
                 _loadFields();
               }
             },
-            child: const Text('Save'),
+            child: const Text('Save Changes'),
           ),
         ],
       ),
@@ -139,8 +155,15 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Field'),
-        content: Text('Are you sure you want to delete "${field.name}"?'),
+        backgroundColor: const Color(0xFF1E293B),
+        title: Text(
+          'Delete Field',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        content: Text(
+          'Are you sure you want to delete "${field.name}"?',
+          style: GoogleFonts.outfit(color: Colors.white70),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -164,47 +187,90 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Fields'),
+        title: Text(
+          'MANAGE FIELDS',
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back_ios_new),
           onPressed: () => context.go('/admin'),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAddFieldDialog,
-        child: const Icon(Icons.add),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Icon(Icons.add, size: 28),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF10B981),
+              ),
+            )
           : _fields.isEmpty
-              ? const Center(child: Text('No football fields yet'))
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.sports_soccer, size: 64, color: Colors.white10),
+                      const SizedBox(height: 12),
+                      Text(
+                        'No fields created yet',
+                        style: GoogleFonts.outfit(color: Colors.white54, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                )
               : RefreshIndicator(
+                  color: const Color(0xFF10B981),
                   onRefresh: _loadFields,
                   child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                     itemCount: _fields.length,
                     itemBuilder: (context, index) {
                       final field = _fields[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.12), width: 1.5),
+                        ),
                         child: ListTile(
-                          leading: const Icon(Icons.sports_soccer),
-                          title: Text(field.name),
-                          subtitle: Text(
-                            '${field.address ?? "No address"} • \$${field.pricePerHour?.toStringAsFixed(2) ?? "0"}/hr',
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          leading: CircleAvatar(
+                            backgroundColor: theme.colorScheme.primary.withOpacity(0.15),
+                            child: Icon(Icons.sports_soccer, color: theme.colorScheme.primary),
+                          ),
+                          title: Text(
+                            field.name,
+                            style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              '${field.address ?? "No address"} • \$${field.pricePerHour?.toStringAsFixed(0) ?? "0"}/hr',
+                              style: GoogleFonts.outfit(color: Colors.white54, fontSize: 13),
+                            ),
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.edit),
+                                icon: Icon(Icons.edit_outlined, color: theme.colorScheme.secondary),
                                 onPressed: () => _showEditFieldDialog(field),
+                                tooltip: 'Edit Field',
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.red),
+                                icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
                                 onPressed: () => _deleteField(field),
+                                tooltip: 'Delete Field',
                               ),
                             ],
                           ),
@@ -216,3 +282,4 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
     );
   }
 }
+

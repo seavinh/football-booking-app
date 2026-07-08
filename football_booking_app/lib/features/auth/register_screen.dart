@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../services/supabase_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -45,6 +46,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Registration successful! Please check your email to verify.'),
+            backgroundColor: Color(0xFF10B981),
           ),
         );
         context.go('/login');
@@ -62,123 +64,334 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
-      ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.person_add,
-                    size: 80,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 32),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.email),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!value.contains('@')) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: Icon(Icons.lock),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Confirm Password',
-                      prefixIcon: Icon(Icons.lock_outline),
-                    ),
-                    validator: (value) {
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    initialValue: _selectedRole,
-                    decoration: const InputDecoration(
-                      labelText: 'Register as',
-                      prefixIcon: Icon(Icons.person),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'user',
-                        child: Text('User - Book football fields'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'admin',
-                        child: Text('Admin - Manage fields & bookings'),
-                      ),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedRole = value!;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  if (_error != null)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        _error!,
-                        style: const TextStyle(color: Colors.red),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF020617), Color(0xFF0F172A), Color(0xFF020617)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+                        onPressed: () => context.go('/login'),
                       ),
                     ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _register,
-                      child: _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Register'),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.person_add_outlined,
+                          size: 56,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextButton(
-                    onPressed: () => context.go('/login'),
-                    child: const Text('Already have an account? Login'),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    Text(
+                      'CREATE ACCOUNT',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Join the largest football booking community',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 14,
+                        color: Colors.white60,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E293B).withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Email Address',
+                              hintText: 'Enter your email',
+                              prefixIcon: Icon(Icons.email_outlined, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!value.contains('@')) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              hintText: 'Choose password',
+                              prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your password';
+                              }
+                              if (value.length < 6) {
+                                return 'Password must be at least 6 characters';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: true,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Confirm Password',
+                              hintText: 'Re-enter password',
+                              prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+                            ),
+                            validator: (value) {
+                              if (value != _passwordController.text) {
+                                return 'Passwords do not match';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 24),
+                          
+                          // Custom Dual-Card Role Selector
+                          Text(
+                            'Register as',
+                            style: GoogleFonts.outfit(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedRole = 'user';
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: _selectedRole == 'user'
+                                          ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: _selectedRole == 'user'
+                                            ? theme.colorScheme.primary
+                                            : theme.colorScheme.primary.withValues(alpha: 0.15),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.sports_soccer,
+                                          color: _selectedRole == 'user'
+                                              ? theme.colorScheme.primary
+                                              : Colors.white54,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Player',
+                                          style: GoogleFonts.outfit(
+                                            fontWeight: FontWeight.bold,
+                                            color: _selectedRole == 'user' ? Colors.white : Colors.white54,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Book fields',
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 11,
+                                            color: _selectedRole == 'user' ? Colors.white70 : Colors.white38,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedRole = 'admin';
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                                    decoration: BoxDecoration(
+                                      color: _selectedRole == 'admin'
+                                          ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: _selectedRole == 'admin'
+                                            ? theme.colorScheme.primary
+                                            : theme.colorScheme.primary.withValues(alpha: 0.15),
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        Icon(
+                                          Icons.admin_panel_settings_outlined,
+                                          color: _selectedRole == 'admin'
+                                              ? theme.colorScheme.primary
+                                              : Colors.white54,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Field Owner',
+                                          style: GoogleFonts.outfit(
+                                            fontWeight: FontWeight.bold,
+                                            color: _selectedRole == 'admin' ? Colors.white : Colors.white54,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          'Manage fields',
+                                          style: GoogleFonts.outfit(
+                                            fontSize: 11,
+                                            color: _selectedRole == 'admin' ? Colors.white70 : Colors.white38,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          
+                          if (_error != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _error!,
+                                      style: GoogleFonts.outfit(
+                                        color: Colors.redAccent,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _register,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text('CREATE ACCOUNT'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => context.go('/login'),
+                        child: RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.outfit(fontSize: 14, color: Colors.white70),
+                            children: [
+                              const TextSpan(text: 'Already have an account? '),
+                              TextSpan(
+                                text: 'Sign In',
+                                style: TextStyle(
+                                  color: theme.colorScheme.secondary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -187,3 +400,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+
