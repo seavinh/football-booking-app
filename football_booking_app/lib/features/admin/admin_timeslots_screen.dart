@@ -109,7 +109,7 @@ class _AdminTimeSlotsScreenState extends State<AdminTimeSlotsScreen> {
                   isAvailable: true,
                   createdAt: DateTime.now(),
                 ));
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.pop(context);
                   _loadTimeSlots();
                 }
@@ -177,7 +177,7 @@ class _AdminTimeSlotsScreenState extends State<AdminTimeSlotsScreen> {
                     createdAt: DateTime.now(),
                   ));
                 }
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.pop(context);
                   _loadTimeSlots();
                 }
@@ -282,7 +282,7 @@ class _AdminTimeSlotsScreenState extends State<AdminTimeSlotsScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 border: Border.all(
                                   color: slot.isAvailable
-                                      ? theme.colorScheme.primary.withOpacity(0.12)
+                                      ? theme.colorScheme.primary.withValues(alpha: 0.12)
                                       : Colors.white10,
                                   width: 1.5,
                                 ),
@@ -302,7 +302,7 @@ class _AdminTimeSlotsScreenState extends State<AdminTimeSlotsScreen> {
                                   children: [
                                     Switch(
                                       value: slot.isAvailable,
-                                      activeColor: theme.colorScheme.primary,
+                                      activeThumbColor: theme.colorScheme.primary,
                                       onChanged: (value) async {
                                         await _supabaseService.toggleTimeSlotAvailability(
                                           slot.id,
@@ -338,7 +338,7 @@ class _AdminTimeSlotsScreenState extends State<AdminTimeSlotsScreen> {
                                                 ),
                                                 onPressed: () async {
                                                   await _supabaseService.deleteTimeSlot(slot.id);
-                                                  if (mounted) {
+                                                  if (context.mounted) {
                                                     Navigator.pop(context);
                                                     _loadTimeSlots();
                                                   }

@@ -9,6 +9,8 @@ class Booking {
   final DateTime createdAt;
   final String? fieldName;
   final String? fieldAddress;
+  final String? userName;
+  final String? userPhone;
 
   Booking({
     required this.id,
@@ -21,6 +23,8 @@ class Booking {
     required this.createdAt,
     this.fieldName,
     this.fieldAddress,
+    this.userName,
+    this.userPhone,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,8 @@ class Booking {
       createdAt: DateTime.parse(json['created_at']),
       fieldName: json['football_fields']?['name'],
       fieldAddress: json['football_fields']?['address'],
+      userName: json['profiles']?['full_name'],
+      userPhone: json['profiles']?['phone'],
     );
   }
 

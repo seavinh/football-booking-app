@@ -137,7 +137,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                     ? null
                     : () async {
                         await _supabaseService.updateBookingStatus(booking.id, 'confirmed');
-                        if (mounted) {
+                        if (context.mounted) {
                           Navigator.pop(context);
                           _loadBookings();
                         }
@@ -154,7 +154,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                     ? null
                     : () async {
                         await _supabaseService.updateBookingStatus(booking.id, 'cancelled');
-                        if (mounted) {
+                        if (context.mounted) {
                           Navigator.pop(context);
                           _loadBookings();
                         }
@@ -176,13 +176,20 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
     final color = _statusColor(booking.status);
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: const Color(0xFF1E293B),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
+      builder: (context) => SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: 24,
+            left: 24,
+            right: 24,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          ),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -233,7 +240,9 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
             _detailRow(Icons.location_on_outlined, 'Location', booking.fieldAddress ?? 'N/A'),
             _detailRow(Icons.calendar_today_outlined, 'Date', DateFormat('EEEE, MMMM d, yyyy').format(booking.bookingDate)),
             _detailRow(Icons.access_time, 'Time', '${booking.startTime} - ${booking.endTime}'),
-            _detailRow(Icons.person_outline, 'User ID', booking.userId.substring(0, 8).toUpperCase()),
+            _detailRow(Icons.person_outline, 'User', '${booking.userName?.isNotEmpty == true ? booking.userName : 'Unknown'} (ID: ${booking.userId.substring(0, 8).toUpperCase()})'),
+            if (booking.userPhone?.isNotEmpty == true)
+              _detailRow(Icons.phone_outlined, 'Phone', booking.userPhone!),
             _detailRow(Icons.schedule, 'Booked On', DateFormat('MMM d, yyyy • HH:mm').format(booking.createdAt)),
             const SizedBox(height: 24),
             Row(
@@ -259,6 +268,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
             const SizedBox(height: 16),
           ],
         ),
+      ),
       ),
     );
   }
@@ -688,7 +698,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: filters.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final (value, label) = filters[index];
           final isSelected = _statusFilter == value;

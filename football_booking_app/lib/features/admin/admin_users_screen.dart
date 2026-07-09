@@ -25,7 +25,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   Future<void> _loadUsers() async {
     final users = await _supabaseService.getAllProfiles();
     setState(() {
-      _users = users;
+      _users = users.where((u) => u.isAdmin).toList();
       _isLoading = false;
     });
   }
@@ -59,7 +59,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             onPressed: () async {
               final newRole = isAdmin ? 'user' : 'admin';
               await _supabaseService.updateProfileRole(user.id, newRole);
-              if (mounted) {
+              if (context.mounted) {
                 Navigator.pop(context);
                 _loadUsers();
               }
@@ -116,8 +116,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       final user = _users[index];
                       final isAdmin = user.isAdmin;
                       final displayName = user.fullName?.isNotEmpty == true
-                          ? user.fullName!
-                          : user.id.substring(0, 8);
+                          ? '${user.fullName} (${user.id.substring(0, 8)})'
+                          : 'No Name (${user.id.substring(0, 8)})';
 
                       return Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -148,24 +148,36 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                           subtitle: Padding(
                             padding: const EdgeInsets.only(top: 4),
-                            child: Row(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: isAdmin
-                                        ? Colors.amber.withValues(alpha: 0.15)
-                                        : theme.colorScheme.primary.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(8),
+                                if (user.fullName?.isNotEmpty == true) ...[
+                                  Text(
+                                    'ID: ${user.id.substring(0, 8)}',
+                                    style: GoogleFonts.outfit(color: Colors.white70, fontSize: 12),
                                   ),
-                                  child: Text(
-                                    isAdmin ? 'Admin' : 'User',
-                                    style: GoogleFonts.outfit(
-                                      color: isAdmin ? Colors.amber : theme.colorScheme.primary,
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
+                                  const SizedBox(height: 4),
+                                ],
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: isAdmin
+                                            ? Colors.amber.withValues(alpha: 0.15)
+                                            : theme.colorScheme.primary.withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        isAdmin ? 'Admin' : 'User',
+                                        style: GoogleFonts.outfit(
+                                          color: isAdmin ? Colors.amber : theme.colorScheme.primary,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -183,6 +195,103 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     },
                   ),
                 ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF10B981),
+        onPressed: _showAddAdminDialog,
+        child: const Icon(Icons.person_add, color: Colors.white),
+      ),
+    );
+  }
+
+  void _showAddAdminDialog() {
+    final emailCtrl = TextEditingController();
+    final passCtrl = TextEditingController();
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isAdding = false;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: const Color(0xFF1E293B),
+            title: Text('Add New Admin', style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white)),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nameCtrl,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(labelText: 'Full Name', labelStyle: TextStyle(color: Colors.white70)),
+                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                    ),
+                    TextFormField(
+                      controller: phoneCtrl,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(labelText: 'Phone', labelStyle: TextStyle(color: Colors.white70)),
+                    ),
+                    TextFormField(
+                      controller: emailCtrl,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(labelText: 'Email', labelStyle: TextStyle(color: Colors.white70)),
+                      validator: (v) => !v!.contains('@') ? 'Invalid email' : null,
+                    ),
+                    TextFormField(
+                      controller: passCtrl,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(labelText: 'Password', labelStyle: TextStyle(color: Colors.white70)),
+                      obscureText: true,
+                      validator: (v) => v!.length < 6 ? 'Min 6 characters' : null,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+                onPressed: isAdding
+                    ? null
+                    : () async {
+                        if (formKey.currentState!.validate()) {
+                          setDialogState(() => isAdding = true);
+                          try {
+                            await _supabaseService.createAdminUser(
+                              emailCtrl.text.trim(),
+                              passCtrl.text,
+                              nameCtrl.text.trim(),
+                              phoneCtrl.text.trim(),
+                            );
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              _loadUsers();
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                            }
+                          } finally {
+                            if (context.mounted) {
+                              setDialogState(() => isAdding = false);
+                            }
+                          }
+                        }
+                      },
+                child: isAdding ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Add Admin'),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

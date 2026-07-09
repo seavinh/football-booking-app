@@ -87,7 +87,7 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
                   'address': addressController.text,
                   'price_per_hour': double.tryParse(priceController.text) ?? 0,
                 });
-                if (mounted) {
+                if (context.mounted) {
                   Navigator.pop(context);
                   _loadFields();
                 }
@@ -139,7 +139,7 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
                 'address': addressController.text,
                 'price_per_hour': double.tryParse(priceController.text) ?? 0,
               });
-              if (mounted) {
+              if (context.mounted) {
                 Navigator.pop(context);
                 _loadFields();
               }
@@ -173,7 +173,7 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
               await _supabaseService.deleteFootballField(field.id);
-              if (mounted) {
+              if (context.mounted) {
                 Navigator.pop(context);
                 _loadFields();
               }
@@ -240,12 +240,12 @@ class _AdminFieldsScreenState extends State<AdminFieldsScreen> {
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: theme.colorScheme.primary.withOpacity(0.12), width: 1.5),
+                          border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.12), width: 1.5),
                         ),
                         child: ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           leading: CircleAvatar(
-                            backgroundColor: theme.colorScheme.primary.withOpacity(0.15),
+                            backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.15),
                             child: Icon(Icons.sports_soccer, color: theme.colorScheme.primary),
                           ),
                           title: Text(

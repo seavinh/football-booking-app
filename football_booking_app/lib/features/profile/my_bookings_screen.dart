@@ -122,7 +122,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.12), width: 1.5),
+        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.12), width: 1.5),
         boxShadow: const [
           BoxShadow(
             color: Colors.black12,
@@ -178,10 +178,10 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(booking.status).withOpacity(0.12),
+                      color: _getStatusColor(booking.status).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: _getStatusColor(booking.status).withOpacity(0.3),
+                        color: _getStatusColor(booking.status).withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -224,7 +224,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
                           width: 6,
                           height: 1.5,
                           child: DecoratedBox(
-                            decoration: BoxDecoration(color: Colors.white10.withOpacity(0.15)),
+                            decoration: BoxDecoration(color: Colors.white10.withValues(alpha: 0.15)),
                           ),
                         );
                       }),
@@ -284,7 +284,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> with SingleTickerPr
               const Divider(height: 1, color: Colors.white10),
               Container(
                 width: double.infinity,
-                color: const Color(0xFF1E293B).withOpacity(0.3),
+                color: const Color(0xFF1E293B).withValues(alpha: 0.3),
                 child: TextButton.icon(
                   onPressed: () => _cancelBooking(booking.id),
                   icon: const Icon(Icons.cancel_outlined, size: 18, color: Colors.redAccent),

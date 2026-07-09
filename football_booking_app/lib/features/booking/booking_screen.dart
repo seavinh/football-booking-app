@@ -170,13 +170,13 @@ class _BookingScreenState extends State<BookingScreen> {
                           decoration: BoxDecoration(
                             color: theme.colorScheme.surface,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: theme.colorScheme.primary.withOpacity(0.1)),
+                            border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
                           ),
                           child: Row(
                             children: [
                               CircleAvatar(
                                 radius: 24,
-                                backgroundColor: theme.colorScheme.primary.withOpacity(0.15),
+                                backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.15),
                                 child: Icon(Icons.sports_soccer, color: theme.colorScheme.primary),
                               ),
                               const SizedBox(width: 16),
@@ -249,7 +249,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   border: Border.all(
                                     color: isSameDay
                                         ? theme.colorScheme.primary
-                                        : theme.colorScheme.primary.withOpacity(0.15),
+                                        : theme.colorScheme.primary.withValues(alpha: 0.15),
                                     width: 1.5,
                                   ),
                                 ),
@@ -337,7 +337,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       color: isSelected
                                           ? theme.colorScheme.primary
                                           : isBooked
-                                              ? const Color(0xFF1E293B).withOpacity(0.4)
+                                              ? const Color(0xFF1E293B).withValues(alpha: 0.4)
                                               : theme.colorScheme.surface,
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
@@ -345,7 +345,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                             ? theme.colorScheme.primary
                                             : isBooked
                                                 ? Colors.white10
-                                                : theme.colorScheme.primary.withOpacity(0.2),
+                                                : theme.colorScheme.primary.withValues(alpha: 0.2),
                                         width: 1.5,
                                       ),
                                     ),
@@ -404,9 +404,9 @@ class _BookingScreenState extends State<BookingScreen> {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withOpacity(0.06),
+                            color: theme.colorScheme.primary.withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: theme.colorScheme.primary.withOpacity(0.2), width: 1.5),
+                            border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2), width: 1.5),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,

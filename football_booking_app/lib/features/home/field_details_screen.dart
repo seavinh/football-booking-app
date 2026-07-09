@@ -81,11 +81,11 @@ class FieldDetailsScreen extends StatelessWidget {
                                   fit: BoxFit.cover,
                                 )
                               : Container(
-                                  color: theme.colorScheme.primary.withOpacity(0.15),
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.15),
                                   child: Icon(
                                     Icons.sports_soccer,
                                     size: 100,
-                                    color: theme.colorScheme.primary.withOpacity(0.3),
+                                    color: theme.colorScheme.primary.withValues(alpha: 0.3),
                                   ),
                                 ),
                           // Shadow overlay on background image
@@ -94,7 +94,7 @@ class FieldDetailsScreen extends StatelessWidget {
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [
-                                    Colors.black87.withOpacity(0.4),
+                                    Colors.black87.withValues(alpha: 0.4),
                                     Colors.transparent,
                                     const Color(0xFF0F172A),
                                   ],
@@ -133,7 +133,7 @@ class FieldDetailsScreen extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFFFBBF24).withOpacity(0.15),
+                                  color: const Color(0xFFFBBF24).withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: const Row(
@@ -188,12 +188,12 @@ class FieldDetailsScreen extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.surface,
                                 borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: theme.colorScheme.primary.withOpacity(0.1)),
+                                border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.1)),
                               ),
                               child: Row(
                                 children: [
                                   CircleAvatar(
-                                    backgroundColor: theme.colorScheme.secondary.withOpacity(0.15),
+                                    backgroundColor: theme.colorScheme.secondary.withValues(alpha: 0.15),
                                     child: Icon(Icons.location_on_outlined, color: theme.colorScheme.secondary),
                                   ),
                                   const SizedBox(width: 12),
@@ -249,7 +249,7 @@ class FieldDetailsScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                   border: Border.all(
                                     color: isAvail
-                                        ? theme.colorScheme.primary.withOpacity(0.1)
+                                        ? theme.colorScheme.primary.withValues(alpha: 0.1)
                                         : Colors.white10,
                                   ),
                                 ),
@@ -291,7 +291,7 @@ class FieldDetailsScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0F172A).withOpacity(0.95),
+                    color: const Color(0xFF0F172A).withValues(alpha: 0.95),
                     border: const Border(
                       top: BorderSide(color: Color(0x1F10B981), width: 1.5),
                     ),
@@ -345,7 +345,7 @@ class FieldDetailsScreen extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
                           elevation: 6,
-                          shadowColor: theme.colorScheme.primary.withOpacity(0.4),
+                          shadowColor: theme.colorScheme.primary.withValues(alpha: 0.4),
                         ),
                         child: Text(
                           'BOOK NOW',

@@ -54,7 +54,7 @@ class FieldCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.15)),
+        border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.15)),
         boxShadow: const [
           BoxShadow(
             color: Colors.black26,

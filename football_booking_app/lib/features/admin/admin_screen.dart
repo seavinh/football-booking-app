@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../models/user_profile.dart';
+import '../../services/supabase_service.dart';
 
 class AdminScreen extends StatelessWidget {
   const AdminScreen({super.key});
@@ -13,7 +15,7 @@ class AdminScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,9 +50,18 @@ class AdminScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'ADMIN PANEL',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        title: FutureBuilder<UserProfile>(
+          future: SupabaseService().getProfile(),
+          builder: (context, snapshot) {
+            String title = 'ADMIN PANEL';
+            if (snapshot.hasData && snapshot.data!.fullName?.isNotEmpty == true) {
+              title = 'ADMIN PANEL - ${snapshot.data!.fullName}';
+            }
+            return Text(
+              title,
+              style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+            );
+          },
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new),
@@ -153,7 +164,7 @@ class _AdminMenuCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.12), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.12), width: 1.5),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -165,7 +176,7 @@ class _AdminMenuCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 26,
-                  backgroundColor: color.withOpacity(0.12),
+                  backgroundColor: color.withValues(alpha: 0.12),
                   child: Icon(icon, color: color, size: 28),
                 ),
                 const SizedBox(width: 16),
@@ -192,7 +203,7 @@ class _AdminMenuCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right, color: color.withOpacity(0.6)),
+                Icon(Icons.chevron_right, color: color.withValues(alpha: 0.6)),
               ],
             ),
           ),

@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../core/constants/app_constants.dart';
 import '../models/football_field.dart';
 import '../models/booking.dart';
 import '../models/user_profile.dart';
@@ -14,13 +17,13 @@ class SupabaseService {
     return await _client.auth.signInWithPassword(email: email, password: password);
   }
 
-  Future<AuthResponse> signUp(String email, String password, {String fullName = ''}) async {
+  Future<AuthResponse> signUp(String email, String password, {String fullName = '', String phone = ''}) async {
     final response = await _client.auth.signUp(email: email, password: password);
     if (response.user != null) {
       await _client.from('profiles').upsert({
         'id': response.user!.id,
         'full_name': fullName,
-        'phone': '',
+        'phone': phone,
         'role': 'user',
       });
     }
@@ -71,6 +74,46 @@ class SupabaseService {
     await _client.from('profiles').update({'role': role}).eq('id', userId);
   }
 
+  Future<void> createAdminUser(String email, String password, String fullName, String phone) async {
+    final url = Uri.parse('${AppConstants.supabaseUrl}/auth/v1/signup');
+    final response = await http.post(
+      url,
+      headers: {
+        'apikey': AppConstants.supabaseAnonKey,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'data': {
+          'full_name': fullName,
+          'phone': phone,
+        }
+      }),
+    );
+    
+    if (response.statusCode >= 400) {
+      final error = jsonDecode(response.body);
+      throw Exception(error['msg'] ?? 'Failed to create user');
+    }
+    
+    final jsonResponse = jsonDecode(response.body);
+    final userId = jsonResponse['user'] != null ? jsonResponse['user']['id'] : jsonResponse['id'];
+    
+    if (userId == null) {
+      throw Exception('Failed to create user');
+    }
+    
+    await Future.delayed(const Duration(milliseconds: 500));
+    await _client.from('profiles').upsert({
+      'id': userId,
+      'full_name': fullName,
+      'phone': phone,
+      'role': 'admin',
+    });
+  }
+
+
   Future<List<UserProfile>> getAllProfiles() async {
     final response = await _client.from('profiles').select();
     return (response as List).map((json) => UserProfile.fromJson(json)).toList();
@@ -95,7 +138,31 @@ class SupabaseService {
         .from('bookings')
         .select('*, football_fields(name, address)')
         .order('booking_date', ascending: false);
-    return (response as List).map((json) => Booking.fromJson(json)).toList();
+        
+    final bookingsList = (response as List).cast<Map<String, dynamic>>();
+    
+    final userIds = bookingsList.map((b) => b['user_id'] as String).toSet().toList();
+    if (userIds.isNotEmpty) {
+      final profilesResponse = await _client
+          .from('profiles')
+          .select('id, full_name, phone')
+          .inFilter('id', userIds);
+          
+      final profilesList = (profilesResponse as List).cast<Map<String, dynamic>>();
+      final profileMap = {for (var p in profilesList) p['id'] as String: p};
+      
+      for (var booking in bookingsList) {
+        final profile = profileMap[booking['user_id']];
+        if (profile != null) {
+          booking['profiles'] = {
+            'full_name': profile['full_name'],
+            'phone': profile['phone'],
+          };
+        }
+      }
+    }
+    
+    return bookingsList.map((json) => Booking.fromJson(json)).toList();
   }
 
   Future<void> updateBookingStatus(String id, String status) async {

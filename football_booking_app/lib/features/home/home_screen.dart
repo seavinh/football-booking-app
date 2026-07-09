@@ -116,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.logout_outlined, size: 24),
             onPressed: () async {
               await _supabaseService.signOut();
-              if (mounted) {
+              if (context.mounted) {
                 context.go('/login');
               }
             },
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 children: [
                                   CircleAvatar(
                                     radius: 24,
-                                    backgroundColor: theme.colorScheme.primary.withOpacity(0.15),
+                                    backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.15),
                                     child: Icon(
                                       _profile?.isAdmin == true ? Icons.admin_panel_settings : Icons.sports_soccer,
                                       color: theme.colorScheme.primary,
@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: const TextStyle(color: Colors.white),
                                 decoration: InputDecoration(
                                   hintText: 'Search fields by name or location...',
-                                  prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary.withOpacity(0.7)),
+                                  prefixIcon: Icon(Icons.search, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
                                   suffixIcon: _searchQuery.isNotEmpty
                                       ? IconButton(
                                           icon: const Icon(Icons.clear, color: Colors.white54),
@@ -270,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           side: BorderSide(
                                             color: isActive
                                                 ? theme.colorScheme.primary
-                                                : theme.colorScheme.primary.withOpacity(0.15),
+                                                : theme.colorScheme.primary.withValues(alpha: 0.15),
                                           ),
                                         ),
                                       ),
