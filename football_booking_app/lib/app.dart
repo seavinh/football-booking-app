@@ -13,6 +13,7 @@ import 'features/admin/admin_screen.dart';
 import 'features/admin/admin_fields_screen.dart';
 import 'features/admin/admin_bookings_screen.dart';
 import 'features/admin/admin_timeslots_screen.dart';
+import 'features/admin/admin_users_screen.dart';
 import 'services/supabase_service.dart';
 
 class MyApp extends StatelessWidget {
@@ -103,6 +104,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/admin/time-slots',
       builder: (context, state) => const AdminTimeSlotsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/users',
+      builder: (context, state) => const AdminUsersScreen(),
     ),
   ],
 );

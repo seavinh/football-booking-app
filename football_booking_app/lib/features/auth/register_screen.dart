@@ -12,16 +12,16 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _fullNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _supabaseService = SupabaseService();
   bool _isLoading = false;
   String? _error;
-  String _selectedRole = 'user';
-
   @override
   void dispose() {
+    _fullNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -40,7 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await _supabaseService.signUp(
         _emailController.text.trim(),
         _passwordController.text,
-        role: _selectedRole,
+        fullName: _fullNameController.text.trim(),
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -147,6 +147,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           TextFormField(
+                            controller: _fullNameController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: InputDecoration(
+                              labelText: 'Full Name',
+                              hintText: 'Enter your full name',
+                              prefixIcon: Icon(Icons.person_outline, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your name';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             style: const TextStyle(color: Colors.white),
@@ -203,127 +219,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             },
                           ),
                           const SizedBox(height: 24),
-                          
-                          // Custom Dual-Card Role Selector
-                          Text(
-                            'Register as',
-                            style: GoogleFonts.outfit(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedRole = 'user';
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-                                    decoration: BoxDecoration(
-                                      color: _selectedRole == 'user'
-                                          ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: _selectedRole == 'user'
-                                            ? theme.colorScheme.primary
-                                            : theme.colorScheme.primary.withValues(alpha: 0.15),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Icon(
-                                          Icons.sports_soccer,
-                                          color: _selectedRole == 'user'
-                                              ? theme.colorScheme.primary
-                                              : Colors.white54,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Player',
-                                          style: GoogleFonts.outfit(
-                                            fontWeight: FontWeight.bold,
-                                            color: _selectedRole == 'user' ? Colors.white : Colors.white54,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          'Book fields',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 11,
-                                            color: _selectedRole == 'user' ? Colors.white70 : Colors.white38,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedRole = 'admin';
-                                    });
-                                  },
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-                                    decoration: BoxDecoration(
-                                      color: _selectedRole == 'admin'
-                                          ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                                          : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: _selectedRole == 'admin'
-                                            ? theme.colorScheme.primary
-                                            : theme.colorScheme.primary.withValues(alpha: 0.15),
-                                        width: 1.5,
-                                      ),
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        Icon(
-                                          Icons.admin_panel_settings_outlined,
-                                          color: _selectedRole == 'admin'
-                                              ? theme.colorScheme.primary
-                                              : Colors.white54,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Text(
-                                          'Field Owner',
-                                          style: GoogleFonts.outfit(
-                                            fontWeight: FontWeight.bold,
-                                            color: _selectedRole == 'admin' ? Colors.white : Colors.white54,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          'Manage fields',
-                                          style: GoogleFonts.outfit(
-                                            fontSize: 11,
-                                            color: _selectedRole == 'admin' ? Colors.white70 : Colors.white38,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
                           
                           if (_error != null)
                             Container(

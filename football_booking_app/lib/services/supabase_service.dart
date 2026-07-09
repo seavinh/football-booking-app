@@ -14,14 +14,14 @@ class SupabaseService {
     return await _client.auth.signInWithPassword(email: email, password: password);
   }
 
-  Future<AuthResponse> signUp(String email, String password, {String role = 'user'}) async {
+  Future<AuthResponse> signUp(String email, String password, {String fullName = ''}) async {
     final response = await _client.auth.signUp(email: email, password: password);
     if (response.user != null) {
       await _client.from('profiles').upsert({
         'id': response.user!.id,
-        'full_name': '',
+        'full_name': fullName,
         'phone': '',
-        'role': role,
+        'role': 'user',
       });
     }
     return response;
